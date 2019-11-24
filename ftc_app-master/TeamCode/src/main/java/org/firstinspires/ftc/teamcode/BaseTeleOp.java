@@ -59,6 +59,7 @@ public class BaseTeleOp extends Base
         super.loop();
 
         //Bumper strafing simplifies the code a bit
+        //X-configuration
 
         if(gamepad1.right_bumper && !gamepad1.left_bumper){ //this should work
             rf.setPower(-1);
