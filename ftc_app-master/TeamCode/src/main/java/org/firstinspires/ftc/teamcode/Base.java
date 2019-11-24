@@ -29,10 +29,14 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.hardware.Sensor;
+
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
@@ -42,7 +46,7 @@ import com.qualcomm.robotcore.util.Range;
 public class Base extends OpMode
 {
     // Declare OpMode members.
-    public ElapsedTime runtime = new ElapsedTime();
+    public ElapsedTime timer = new ElapsedTime();
     public DcMotor lf;
     public DcMotor rf;
     public DcMotor lb;
@@ -50,6 +54,8 @@ public class Base extends OpMode
     public DcMotor arm;
     public Servo ls;
     public Servo rs;
+    public DistanceSensor distance_sensor;
+    public ColorSensor color_sensor;
 
     public double red_arm_power = 0.3;
     public double inc_arm_power = 0.7;
@@ -71,6 +77,8 @@ public class Base extends OpMode
         rs = hardwareMap.get(Servo.class, "right_servo");
         ls = hardwareMap.get(Servo.class, "left_servo");
         arm = hardwareMap.get(DcMotor.class, "arm");
+        color_sensor = hardwareMap.get(ColorSensor.class, "color");
+        distance_sensor = hardwareMap.get(DistanceSensor.class, "distance");
 
         lf.setDirection(DcMotor.Direction.FORWARD); //positive
         lb.setDirection(DcMotor.Direction.FORWARD);
@@ -96,6 +104,10 @@ public class Base extends OpMode
         rb.setPower(RbPower);
         lb.setPower(LbPower);
 
+        timer.reset();
+        reset_drive();
+        reset_arm();
+
         telemetry.addData("Status", "Initialized");
         telemetry.addData("Go Gatorbots", "Initialized");
     }
@@ -106,7 +118,7 @@ public class Base extends OpMode
 
     @Override
     public void start() {
-        runtime.reset();
+        timer.reset();
     }
 
     @Override
@@ -134,7 +146,7 @@ public class Base extends OpMode
             ls.setPosition(ls_start);
         }
 
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
+        telemetry.addData("Status", "Run Time: " + timer.toString());
         telemetry.addData("Motors", "left (%.2f), right (%.2f)", lf, rf, lb, rb);
     }
 
@@ -165,6 +177,13 @@ public class Base extends OpMode
         lb.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     }
 
+    public void reset_arm(){
+        if(arm.getMode() != DcMotor.RunMode.RUN_USING_ENCODER){
+            arm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        }
+        arm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+    }
+
     public int get_rf(){
         if(rf.getMode() != DcMotor.RunMode.RUN_USING_ENCODER) {
             rf.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -193,6 +212,18 @@ public class Base extends OpMode
         return lb.getCurrentPosition();
     }
 
+    public boolean close(){
+        rs.setPosition(rs_end);
+        ls.setPosition(ls_end);
+        return true;
+    }
+
+    public boolean open(){
+        rs.setPosition(rs_start);
+        ls.setPosition(ls_start);
+        return true;
+    }
+
     public void grab(){
         rs.setPosition(rs_end);
         ls.setPosition(ls_end);
@@ -215,6 +246,19 @@ public class Base extends OpMode
             lf.setPower(power);
             rb.setPower(power);
             lb.setPower(power);
+        }
+        return false;
+    }
+
+    public boolean move_arm(double power, double in){
+        double target = Math.abs(ConstantVariables.K_PIN_CIRCUMFRENCE * in);
+
+        if(arm.getCurrentPosition() >= target){
+            arm.setPower(0);
+        }
+        else{
+            //also bound to change
+            arm.setPower(power);
         }
         return false;
     }
@@ -253,6 +297,14 @@ public class Base extends OpMode
             lb.setPower(-power);
         }
         return false;
+    }
+
+    //Checking for colors
+    public boolean is_black(int red, int blue){
+        return blue > red * (3.0/4.0);
+    }
+    public boolean is_yellow(int red, int green, int blue){
+        return ((red > 2*blue) && (green > 2*blue));
     }
 
     public void stop_all(){

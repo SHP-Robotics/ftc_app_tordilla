@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 @Autonomous
-public class AutoMode extends Base {
+public class AutoPark extends Base {
     public int step = 0;
 
     @Override
@@ -23,7 +23,13 @@ public class AutoMode extends Base {
         switch(step){
 
             case 0:
+                //test the arm
+                move_arm(0.4, 1);
+                break;
 
+            case 1:
+                //test the strafe
+                strafe(0.4, 36);
                 break;
 
             default:

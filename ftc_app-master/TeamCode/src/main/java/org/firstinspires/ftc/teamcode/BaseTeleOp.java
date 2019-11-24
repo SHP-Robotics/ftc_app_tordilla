@@ -52,7 +52,6 @@ public class BaseTeleOp extends Base
     @Override
     public void start() {
         super.start();
-        runtime.reset();
     }
 
     @Override
@@ -73,8 +72,14 @@ public class BaseTeleOp extends Base
             lf.setPower(-1);
             lb.setPower(1);
         }
+        if(gamepad1.dpad_up){
+            arm.setPower(0.7);
+        }
+        else if(gamepad1.dpad_down){
+            arm.setPower(-0.7);
+        }
 
-        telemetry.addData("Status", "Run Time: " + runtime.toString());
+        telemetry.addData("Status", "Run Time: " + timer.toString());
         telemetry.addData("Motors", "left (%.2f), right (%.2f)", lf, rf, lb, rb);
     }
 

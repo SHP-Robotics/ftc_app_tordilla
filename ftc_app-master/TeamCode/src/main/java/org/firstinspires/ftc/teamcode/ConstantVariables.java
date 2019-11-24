@@ -36,4 +36,5 @@ public class ConstantVariables {
     public static final double K_DRIVE_ERROR_P = 250; // higher = less sensitive
 
     public static final double K_RATIO_STRAFE = 1.42;
+    public static final double K_PIN_CIRCUMFRENCE = 1.2;
 }
