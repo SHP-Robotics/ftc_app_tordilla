@@ -61,14 +61,14 @@ public class BaseTeleOp extends Base
         //Bumper strafing simplifies the code a bit
 
         if(gamepad1.right_bumper && !gamepad1.left_bumper){ //this should work
-            rf.setPower(1);
-            rb.setPower(-1);
+            rf.setPower(-1);
+            rb.setPower(1);
             lf.setPower(1);
             lb.setPower(-1);
         }
         else if(gamepad1.left_bumper && !gamepad1.right_bumper){
-            rf.setPower(-1);
-            rb.setPower(1);
+            rf.setPower(1);
+            rb.setPower(-1);
             lf.setPower(-1);
             lb.setPower(1);
         }
